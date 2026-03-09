@@ -4,6 +4,45 @@ An AI-powered credit check workflow that replaces manual data entry and dense re
 
 Built for an internal hackathon exploring AI integration into existing credit bureau products.
 
+## Architecture
+
+```mermaid
+graph TB
+    subgraph UI["Streamlit UI (app.py)"]
+        CHAT[Chat Input]
+        FIELDS[Extracted Fields Panel]
+        SUMMARY[Report Summary Panel]
+        RAW[Raw Report Expander]
+    end
+
+    subgraph AGENT["Claude Agent (agent.py)"]
+        PARSE[Parse Unstructured Input]
+        REASON[Autonomous Tool Selection]
+        SYNTH[Synthesise Narrative]
+    end
+
+    subgraph MCP["MCP Server (mcp_server.py)"]
+        T1[validate_id_number]
+        T2[verify_identity]
+        T3[run_credit_check]
+        T4[check_fraud]
+        T5[assess_affordability]
+    end
+
+    subgraph DATA["Data Layer (mock_api.py)"]
+        MOCK[Synthetic Bureau Data]
+    end
+
+    CHAT --> PARSE
+    PARSE --> REASON
+    REASON --> T1 & T2 & T3 & T4 & T5
+    T1 & T2 & T3 & T4 & T5 --> MOCK
+    T1 & T2 & T3 & T4 & T5 --> SYNTH
+    SYNTH --> SUMMARY
+    SYNTH --> FIELDS
+    SYNTH --> RAW
+```
+
 ## How It Works
 
 ```mermaid
@@ -39,31 +78,6 @@ flowchart TD
 ```
 
 The agent's autonomous tool selection is the key differentiator — it reasons about which checks are appropriate based on the application context, rather than following a fixed pipeline.
-
-## Architecture
-
-```mermaid
-graph LR
-    subgraph UI Layer
-        APP[app.py<br/>Streamlit]
-    end
-
-    subgraph Orchestration
-        AGENT[agent.py<br/>Claude Agent + Tool Use]
-    end
-
-    subgraph MCP Tool Layer
-        MCP[mcp_server.py<br/>FastMCP Server]
-    end
-
-    subgraph Data Layer
-        MOCK[mock_api.py<br/>Synthetic Bureau Data]
-    end
-
-    APP <--> AGENT
-    AGENT <-->|tool calls| MCP
-    MCP <--> MOCK
-```
 
 ## Quick Start
 
